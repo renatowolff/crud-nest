@@ -1,5 +1,5 @@
 import { Controller, Post } from '@nestjs/common';
-import { Body, Get, Param, Put } from '@nestjs/common/decorators';
+import { Body, Delete, Get, Param, Put } from '@nestjs/common/decorators';
 import { PrismaService } from '../prisma.service';
 
 @Controller('user')
@@ -43,6 +43,13 @@ export class UserController {
     });
     return update;
   }
-
-  // DELETE
+  @Delete('delete/:id')
+  async deleteUser(@Param('id') id: string) {
+    const deleteUserById = await this.prisma.user.delete({
+      where: {
+        id: Number(id),
+      },
+    });
+    return deleteUserById.id;
+  }
 }
