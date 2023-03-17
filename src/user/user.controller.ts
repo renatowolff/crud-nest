@@ -1,55 +1,69 @@
-import { Controller, Post } from '@nestjs/common';
-import { Body, Delete, Get, Param, Put } from '@nestjs/common/decorators';
-import { PrismaService } from '../prisma.service';
+import {
+  Controller,
+  Post,
+  Body,
+  Delete,
+  Get,
+  Param,
+  Put,
+} from '@nestjs/common';
+import { UserService } from './user.service';
+import { UserRegisterDto } from './dto/user-register-dto';
+import { FindUserByEmailDto } from './dto/find-user-by-email-dto';
+
+// rotas
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly userService: UserService) {}
 
   // CREATE
-  @Post('register')
-  async register(@Body() body: { email: string; hash: string }) {
-    const { email, hash } = body;
-    const createUser = await this.prisma.user.create({
-      data: {
-        email,
-        hash,
-      },
-    });
+  @Post('register') //Decorator POST, verbaliza método http POST, url como parâmetro
+  async register(@Body() userData: UserRegisterDto) {
+    const createUser = await this.userService.register(userData);
     return createUser;
   }
 
   // READ
-  @Get('find')
-  async findUser() {
-    return await this.prisma.user.findMany();
+  @Get('findall') //Decorator GET, verbaliza método http GET, url como parâmetro
+  async findAllUsers() {
+    return await this.userService.findAllUsers();
   }
 
   // UPDATE
-  @Put('update/:id')
-  async updateUser(
-    @Param('id') id: string,
-    @Body() body: { email: string; hash: string },
-  ) {
-    const { email, hash } = body;
-    const update = await this.prisma.user.update({
-      where: {
-        id: Number(id),
-      },
-      data: {
-        email,
-        hash,
-      },
-    });
-    return update;
+  @Get('finduserbyemail')
+  async findUserByEmail(@Body() email) {
+    const findUniqueUser = await this.userService.findUserByEmail(email);
+    return findUniqueUser;
   }
-  @Delete('delete/:id')
-  async deleteUser(@Param('id') id: string) {
-    const deleteUserById = await this.prisma.user.delete({
-      where: {
-        id: Number(id),
-      },
-    });
-    return deleteUserById.id;
-  }
+
+  // // UPDATE
+  // @Put('update/:id') //Decorator PUT, verbaliza método http PUT, url como parâmetro
+  // async updateUser(
+  //   @Param('id') id: string,
+  //   @Body() body: { email: string; hash: string },
+  // ) {
+  //   const { email, hash } = body;
+  //   const update = await this.prisma.user.update({
+  //     where: {
+  //       id: Number(id),
+  //     },
+  //     data: {
+  //       email,
+  //       hash,
+  //     },
+  //   });
+  //   return update;
+  // }
+
+  // // DELETE
+  // @Delete('delete/:id') //Decorator DELETE, verbaliza método http DELETE, url como parâmetro
+  // async deleteUser(@Param('id') id: string) {
+  //   const deleteUserById = await this.prisma.user.delete({
+  //     where: {
+  //       id: Number(id),
+  //     },
+  //   });
+  //   return deleteUserById.id;
+  // }
 }
